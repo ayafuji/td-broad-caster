@@ -1,6 +1,8 @@
+import array
 import threading
 import time
 
+import cv2
 from PIL import Image, ImageDraw
 from websocket import create_connection
 
@@ -9,6 +11,8 @@ h = []
 lock = threading.Lock()
 SIZE = [300, 300]
 prev_send_time = time.time()
+
+cap_file = cv2.VideoCapture('C:/Users/yuukitakada/Documents/td-broad-caster\example/test.mp4')
 
 
 def draw_image():
@@ -48,15 +52,19 @@ while True:
     start_time = time.time()
     if len(h) != 0 and len(h) == SIZE[0] * SIZE[1] * 3:
         byte = len(h)
-        print(h)
         send_time = time.time()
-        ws.send_binary(h)
+        arr = array.array('B', h).tobytes()
+        ws.send_binary(arr)
         send_elapsed_time = time.time() - send_time
         diff = (time.time() - prev_send_time)
         fps = 1 / diff
         prev_send_time = time.time()
-        print(" fps :" + str(fps) + ", byte[kb] : " + str(byte / 1000) + ", sendo time : " + str(
-            send_elapsed_time * 1000000))
+        print(" fps :" + str(fps) + ", byte[kb] : " + str(byte / 1000) + ", send time : " + str(
+            send_elapsed_time * 1000))
 
     elapsed_time = time.time() - start_time
-    time.sleep(1 / 15)
+    try:
+        delay = (1 / 30) - elapsed_time if (1 / 30) - elapsed_time > 0 else 0
+    except ZeroDivisionError as e:
+        delay = 0
+    time.sleep(delay)
