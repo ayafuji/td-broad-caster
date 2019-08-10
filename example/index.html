@@ -41,7 +41,11 @@
         // メッセージ受信イベント
         function onMessage(event) {
             if (event && event.data) {
-                chat(event.data);
+                var uint8array = new Uint8Array(event.data);
+                console.log(uint8array.length);
+                //for(var i=0; i < 10; i++) {
+                //    console.log(uint8array);
+                //}
             }
         }
 
